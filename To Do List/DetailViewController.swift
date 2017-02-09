@@ -8,18 +8,30 @@
 
 import UIKit
 
-class DetailViewController: UIViewController {
+class DetailViewController: UIViewController, UITextFieldDelegate  {
     
     @IBOutlet weak var toDoField: UITextField!
     @IBOutlet weak var saveBarButton: UIBarButtonItem!
+    @IBOutlet weak var toDoNoteView: UITextView!
+    
     
     var toDoItem: String?
+    var toDoNote: String?
 
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
         
         toDoField.text = toDoItem
+        toDoNoteView.text = toDoNote
+        toDoField.delegate = self
+        toDoField.becomeFirstResponder()
+        
+        if toDoItem? .characters.count == 0 || toDoItem == nil {
+            saveBarButton.isEnabled = false } else {
+            saveBarButton.isEnabled = true
+        }
+        
     }
 
     override func didReceiveMemoryWarning() {
@@ -27,9 +39,38 @@ class DetailViewController: UIViewController {
         // Dispose of any resources that can be recreated.
     }
     
+    //MARK:- UITextFieldDelegate
+    
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        // Hide the keyboard
+        textField.resignFirstResponder()
+        return true
+    }
+    
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        //if this was called because the user is typing in the toDoField
+        if textField == toDoField {
+            //grab text before the typing
+            let oldString = textField.text! as NSString
+            //find out what the new string will look like after typing
+            let newString = oldString.replacingCharacters(in: range, with: string) as NSString
+            //if after typing, newString has nothing in it, disable save button
+            if newString.length == 0 {
+                saveBarButton.isEnabled = false } else {
+                saveBarButton.isEnabled = true
+            }
+            }
+            return true
+        }
+    
+    
+    
+    //MARK:- Navigation
+    
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if saveBarButton == sender as! UIBarButtonItem {
             toDoItem = toDoField.text
+            toDoNote = toDoNoteView.text
         }
     }
     
